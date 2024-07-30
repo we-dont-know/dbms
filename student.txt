@@ -1,0 +1,154 @@
+### ER Model and Schema Diagram
+
+1. **STUDENT**
+   - snum: integer (Primary Key)
+   - sname: string
+   - major: string
+   - level: string
+   - age: integer
+
+2. **CLASS**
+   - name: string (Primary Key)
+   - meets_at: string
+   - room: string
+   - d: integer
+
+3. **ENROLLED**
+   - snum: integer
+   - cname: string
+   - PRIMARY KEY (snum, cname)
+   - FOREIGN KEY (snum) REFERENCES STUDENT(snum)
+   - FOREIGN KEY (cname) REFERENCES CLASS(name)
+
+4. **FACULTY**
+   - fid: integer (Primary Key)
+   - fname: string
+   - deptid: integer
+
+5. **TEACHES** (relation to represent faculty teaching classes)
+   - fid: integer
+   - cname: string
+   - PRIMARY KEY (fid, cname)
+   - FOREIGN KEY (fid) REFERENCES FACULTY(fid)
+   - FOREIGN KEY (cname) REFERENCES CLASS(name)
+
+### SQL Queries
+
+#### a) Create the tables for the schemas provided with primary keys and foreign keys
+
+```sql
+CREATE TABLE STUDENT (
+    snum INT PRIMARY KEY,
+    sname VARCHAR(100),
+    major VARCHAR(100),
+    level CHAR(2),
+    age INT
+);
+
+CREATE TABLE CLASS (
+    name VARCHAR(100) PRIMARY KEY,
+    meets_at VARCHAR(100),
+    room VARCHAR(100),
+    d INT
+);
+
+CREATE TABLE ENROLLED (
+    snum INT,
+    cname VARCHAR(100),
+    PRIMARY KEY (snum, cname),
+    FOREIGN KEY (snum) REFERENCES STUDENT(snum),
+    FOREIGN KEY (cname) REFERENCES CLASS(name)
+);
+
+CREATE TABLE FACULTY (
+    fid INT PRIMARY KEY,
+    fname VARCHAR(100),
+    deptid INT
+);
+
+CREATE TABLE TEACHES (
+    fid INT,
+    cname VARCHAR(100),
+    PRIMARY KEY (fid, cname),
+    FOREIGN KEY (fid) REFERENCES FACULTY(fid),
+    FOREIGN KEY (cname) REFERENCES CLASS(name)
+);
+```
+
+#### b) Insert five tuples of values to each table
+
+```sql
+-- STUDENT table
+INSERT INTO STUDENT (snum, sname, major, level, age) VALUES 
+(1, 'Alice', 'CS', 'JR', 20),
+(2, 'Bob', 'EE', 'SR', 22),
+(3, 'Charlie', 'ME', 'SO', 19),
+(4, 'Diana', 'CE', 'FR', 18),
+(5, 'Edward', 'CS', 'JR', 21);
+
+-- CLASS table
+INSERT INTO CLASS (name, meets_at, room, d) VALUES 
+('CS101', 'MWF 10', 'CY12', 1),
+('EE200', 'TTh 11', 'EH120', 2),
+('ME150', 'MWF 12', 'MH210', 3),
+('CE210', 'TTh 9', 'CY12', 4),
+('CS102', 'MWF 2', 'CY14', 5);
+
+-- ENROLLED table
+INSERT INTO ENROLLED (snum, cname) VALUES 
+(1, 'CS101'),
+(2, 'EE200'),
+(3, 'ME150'),
+(4, 'CE210'),
+(5, 'CS102');
+
+-- FACULTY table
+INSERT INTO FACULTY (fid, fname, deptid) VALUES 
+(1, 'Prof. Sagar', 10),
+(2, 'Prof. Jones', 20),
+(3, 'Prof. Smith', 30),
+(4, 'Prof. Lee', 40),
+(5, 'Prof. Patel', 50);
+
+-- TEACHES table
+INSERT INTO TEACHES (fid, cname) VALUES 
+(1, 'CS101'),
+(1, 'CS102'),
+(2, 'EE200'),
+(3, 'ME150'),
+(4, 'CE210');
+```
+
+#### c) Find the names of all Juniors (level = JR) who are enrolled in a class taught by Prof. Sagar
+
+```sql
+SELECT DISTINCT s.sname
+FROM STUDENT s
+JOIN ENROLLED e ON s.snum = e.snum
+JOIN TEACHES t ON e.cname = t.cname
+JOIN FACULTY f ON t.fid = f.fid
+WHERE s.level = 'JR' AND f.fname = 'Prof. Sagar';
+```
+
+#### d) Find the names of all classes that either meet in room CY12 or have five or more students enrolled
+
+```sql
+SELECT DISTINCT c.name
+FROM CLASS c
+LEFT JOIN ENROLLED e ON c.name = e.cname
+WHERE c.room = 'CY12'
+GROUP BY c.name, c.room
+HAVING COUNT(e.snum) >= 5
+   OR c.room = 'CY12';
+```
+
+#### e) Find the names of faculty members for whom the combined enrollment of the courses that they teach is less than five
+
+```sql
+SELECT DISTINCT f.fname
+FROM FACULTY f
+JOIN TEACHES t ON f.fid = t.fid
+LEFT JOIN ENROLLED e ON t.cname = e.cname
+GROUP BY f.fid, f.fname
+HAVING COUNT(e.snum) < 5;
+```
