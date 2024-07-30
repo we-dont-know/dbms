@@ -1,0 +1,51 @@
+CREATE TABLE DEPARTMENT (
+    deptno INT PRIMARY KEY,
+    dname VARCHAR(50),
+    dloc VARCHAR(50)
+);
+
+
+
+INSERT INTO DEPARTMENT (deptno, dname, dloc) VALUES
+(1, 'cscy', 'neb106'),
+(2, 'ise', 'building19'),
+(3, 'cse', 'building17'),
+(4, 'mech', 'building5'),
+(5, 'eee', 'building16');
+
+
+1. Select All Columns for All Rows
+  query - SELECT * FROM DEPARTMENT;
+
+2. Select Specific Columns
+  SELECT dname, dloc FROM DEPARTMENT;
+3.Select a Specific Department by deptno
+  SELECT * FROM DEPARTMENT
+  WHERE deptno = 3;
+
+4.Select Departments Located in a Specific Building
+  SELECT * FROM DEPARTMENT
+  WHERE dloc = 'building17';
+
+5.select Departments with dname Starting with 'c'
+  SELECT * FROM DEPARTMENT
+  WHERE dname LIKE 'c%';
+
+
+6.Select Departments Ordered by dloc
+SELECT * FROM DEPARTMENT
+ORDER BY dloc;
+
+7.Select Departments Located in Buildings with 'building1'
+  SELECT * FROM DEPARTMENT
+WHERE dloc LIKE 'building1%';
+8.Update the Location of a Specific Department
+  UPDATE DEPARTMENT
+SET dloc = 'building21'
+WHERE deptno = 2;
+
+
+  9.Delete a Specific Department
+  DELETE FROM DEPARTMENT
+  WHERE dloc = 'building16';
+
