@@ -1,0 +1,136 @@
+### SQL Queries for Banking Database
+
+#### a) Create the tables
+
+```sql
+CREATE TABLE BRANCH (
+    branch_name VARCHAR(100) PRIMARY KEY,
+    branch_city VARCHAR(100),
+    assets REAL
+);
+
+CREATE TABLE ACCOUNTS (
+    accno INT PRIMARY KEY,
+    branch_name VARCHAR(100),
+    balance REAL,
+    FOREIGN KEY (branch_name) REFERENCES BRANCH(branch_name)
+);
+
+CREATE TABLE DEPOSITOR (
+    customer_name VARCHAR(100),
+    accno INT,
+    PRIMARY KEY (customer_name, accno),
+    FOREIGN KEY (accno) REFERENCES ACCOUNTS(accno)
+);
+
+CREATE TABLE CUSTOMER (
+    customer_name VARCHAR(100) PRIMARY KEY,
+    customer_street VARCHAR(100),
+    customer_city VARCHAR(100)
+);
+
+CREATE TABLE LOAN (
+    loan_number INT PRIMARY KEY,
+    branch_name VARCHAR(100),
+    amount REAL,
+    FOREIGN KEY (branch_name) REFERENCES BRANCH(branch_name)
+);
+
+CREATE TABLE BORROWER (
+    customer_name VARCHAR(100),
+    loan_number INT,
+    PRIMARY KEY (customer_name, loan_number),
+    FOREIGN KEY (customer_name) REFERENCES CUSTOMER(customer_name),
+    FOREIGN KEY (loan_number) REFERENCES LOAN(loan_number)
+);
+```
+
+#### b) Insert five tuples of values to each table
+
+```sql
+-- BRANCH table
+INSERT INTO BRANCH (branch_name, branch_city, assets) VALUES 
+('Main', 'New York', 1000000),
+('Downtown', 'Los Angeles', 2000000),
+('Uptown', 'Chicago', 1500000),
+('Suburb', 'Houston', 800000),
+('Central', 'Phoenix', 1200000);
+
+-- ACCOUNTS table
+INSERT INTO ACCOUNTS (accno, branch_name, balance) VALUES 
+(101, 'Main', 5000),
+(102, 'Main', 7000),
+(103, 'Downtown', 3000),
+(104, 'Uptown', 4000),
+(105, 'Suburb', 6000);
+
+-- DEPOSITOR table
+INSERT INTO DEPOSITOR (customer_name, accno) VALUES 
+('Alice', 101),
+('Bob', 102),
+('Charlie', 103),
+('Diana', 104),
+('Edward', 105);
+
+-- CUSTOMER table
+INSERT INTO CUSTOMER (customer_name, customer_street, customer_city) VALUES 
+('Alice', '1st Ave', 'New York'),
+('Bob', '2nd St', 'Los Angeles'),
+('Charlie', '3rd Blvd', 'Chicago'),
+('Diana', '4th Rd', 'Houston'),
+('Edward', '5th Ln', 'Phoenix');
+
+-- LOAN table
+INSERT INTO LOAN (loan_number, branch_name, amount) VALUES 
+(201, 'Main', 10000),
+(202, 'Downtown', 15000),
+(203, 'Uptown', 20000),
+(204, 'Suburb', 25000),
+(205, 'Central', 30000);
+
+-- BORROWER table
+INSERT INTO BORROWER (customer_name, loan_number) VALUES 
+('Alice', 201),
+('Bob', 202),
+('Charlie', 203),
+('Diana', 204),
+('Edward', 205);
+```
+
+#### c) Find all the customers who have at least two accounts at the Main branch
+
+```sql
+SELECT d.customer_name
+FROM DEPOSITOR d
+JOIN ACCOUNTS a ON d.accno = a.accno
+WHERE a.branch_name = 'Main'
+GROUP BY d.customer_name
+HAVING COUNT(d.accno) >= 2;
+```
+
+#### d) Find all the customers who have an account at all the branches located in a specific city
+
+```sql
+SELECT d.customer_name
+FROM DEPOSITOR d
+JOIN ACCOUNTS a ON d.accno = a.accno
+JOIN BRANCH b ON a.branch_name = b.branch_name
+WHERE b.branch_city = 'New York'
+GROUP BY d.customer_name
+HAVING COUNT(DISTINCT b.branch_name) = (
+    SELECT COUNT(DISTINCT branch_name)
+    FROM BRANCH
+    WHERE branch_city = 'New York'
+);
+```
+
+#### e) Demonstrate how you delete all account tuples at every branch located in a specific city
+
+```sql
+DELETE FROM ACCOUNTS
+WHERE branch_name IN (
+    SELECT branch_name
+    FROM BRANCH
+    WHERE branch_city = 'New York'
+);
+```
