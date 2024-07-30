@@ -1,0 +1,107 @@
+ a) Create the table for the schema provided with primary keys and foreign keys.
+
+```sql
+CREATE TABLE Employee (
+    Empno INT PRIMARY KEY,
+    Ename VARCHAR(100),
+    Job VARCHAR(100),
+    Hiredate DATE,
+    Mgr INT,
+    Sal DECIMAL(10, 2),
+    Comm DECIMAL(10, 2),
+    Dno INT,
+    FOREIGN KEY (Dno) REFERENCES Department(Dno) -- Assuming there's a Department table
+);
+```
+
+#### b) Insert five tuples of values into the Employee table.
+
+```sql
+INSERT INTO Employee (Empno, Ename, Job, Hiredate, Mgr, Sal, Comm, Dno) VALUES
+(1, 'Alice', 'Manager', '2020-01-01', NULL, 80000, 5000, 10),
+(2, 'Bob', 'Developer', '2021-02-01', 1, 60000, NULL, 10),
+(3, 'Charlie', 'Developer', '2021-03-01', 1, 62000, NULL, 10),
+(4, 'Diana', 'Analyst', '2021-04-01', 1, 70000, 3000, 20),
+(5, 'Edward', 'Tester', '2021-05-01', 1, 50000, NULL, 20);
+```
+
+#### c) Find the names of employees who have a manager and sort them by hire date.
+
+```sql
+SELECT Ename
+FROM Employee
+WHERE Mgr IS NOT NULL
+ORDER BY Hiredate;
+```
+
+#### d) Find the highest salary in each department.
+
+```sql
+SELECT Dno, MAX(Sal) AS HighestSalary
+FROM Employee
+GROUP BY Dno;
+```
+
+#### e) Find the employees who were hired in 2021.
+
+```sql
+SELECT *
+FROM Employee
+WHERE YEAR(Hiredate) = 2021;
+```
+
+#### f) Find the names and salaries of employees who do not have a commission.
+
+```sql
+SELECT Ename, Sal
+FROM Employee
+WHERE Comm IS NULL;
+```
+
+#### g) Find the names of employees who work under a specific manager (e.g., manager with Empno 1).
+
+```sql
+SELECT Ename
+FROM Employee
+WHERE Mgr = 1;
+```
+
+#### h) Find the total salary cost for each department.
+
+```sql
+SELECT Dno, SUM(Sal) AS TotalSalaryCost
+FROM Employee
+GROUP BY Dno;
+```
+
+#### i) Find the average salary of employees who have a commission.
+
+```sql
+SELECT AVG(Sal) AS AvgSalaryWithComm
+FROM Employee
+WHERE Comm IS NOT NULL;
+```
+
+#### j) Find the names of employees who are managers.
+
+```sql
+SELECT Ename
+FROM Employee
+WHERE Empno IN (SELECT DISTINCT Mgr FROM Employee WHERE Mgr IS NOT NULL);
+```
+
+#### k) Find the names and job titles of employees sorted by their job titles.
+
+```sql
+SELECT Ename, Job
+FROM Employee
+ORDER BY Job;
+```
+
+#### l) Find the number of employees in each department.
+
+```sql
+SELECT Dno, COUNT(*) AS NumberOfEmployees
+FROM Employee
+GROUP BY Dno;
+```
