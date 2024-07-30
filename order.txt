@@ -1,0 +1,172 @@
+### ER Model
+
+1. **CUSTOMER**
+   - CUST #
+   - cname
+   - city
+
+2. **ORDER**
+   - order #
+   - odate
+   - cust #
+   - ord-Amt
+
+3. **ITEM**
+   - item #
+   - unit-price
+
+4. **ORDER-ITEM**
+   - order #
+   - item #
+   - qty
+
+5. **WAREHOUSE**
+   - warehouse #
+   - city
+
+6. **SHIPMENT**
+   - order #
+   - warehouse #
+   - ship-date
+
+### Schema Diagram
+
+```
+CUSTOMER(CUST# PK, cname, city)
+ORDER(order# PK, odate, cust# FK REFERENCES CUSTOMER(CUST#), ord-Amt)
+ITEM(item# PK, unit-price)
+ORDER-ITEM(order# FK REFERENCES ORDER(order#), item# FK REFERENCES ITEM(item#), qty)
+WAREHOUSE(warehouse# PK, city)
+SHIPMENT(order# FK REFERENCES ORDER(order#), warehouse# FK REFERENCES WAREHOUSE(warehouse#), ship-date)
+```
+
+### SQL Queries
+
+#### a) Create the tables
+
+```sql
+CREATE TABLE CUSTOMER (
+    cust_num INT PRIMARY KEY,
+    cname VARCHAR(100),
+    city VARCHAR(100)
+);
+
+CREATE TABLE ORDER (
+    order_num INT PRIMARY KEY,
+    odate DATE,
+    cust_num INT,
+    ord_amt INT,
+    FOREIGN KEY (cust_num) REFERENCES CUSTOMER(cust_num)
+);
+
+CREATE TABLE ITEM (
+    item_num INT PRIMARY KEY,
+    unit_price INT
+);
+
+CREATE TABLE ORDER_ITEM (
+    order_num INT,
+    item_num INT,
+    qty INT,
+    PRIMARY KEY (order_num, item_num),
+    FOREIGN KEY (order_num) REFERENCES ORDER(order_num),
+    FOREIGN KEY (item_num) REFERENCES ITEM(item_num)
+);
+
+CREATE TABLE WAREHOUSE (
+    warehouse_num INT PRIMARY KEY,
+    city VARCHAR(100)
+);
+
+CREATE TABLE SHIPMENT (
+    order_num INT,
+    warehouse_num INT,
+    ship_date DATE,
+    PRIMARY KEY (order_num, warehouse_num),
+    FOREIGN KEY (order_num) REFERENCES ORDER(order_num),
+    FOREIGN KEY (warehouse_num) REFERENCES WAREHOUSE(warehouse_num)
+);
+```
+
+#### b) Insert five tuples of values to each table
+
+```sql
+-- CUSTOMER table
+INSERT INTO CUSTOMER (cust_num, cname, city) VALUES 
+(1, 'Alice', 'New York'),
+(2, 'Bob', 'Los Angeles'),
+(3, 'Charlie', 'Chicago'),
+(4, 'Diana', 'Houston'),
+(5, 'Edward', 'Phoenix');
+
+-- ORDER table
+INSERT INTO ORDER (order_num, odate, cust_num, ord_amt) VALUES 
+(1001, '2023-07-01', 1, 500),
+(1002, '2023-07-02', 2, 300),
+(1003, '2023-07-03', 3, 700),
+(1004, '2023-07-04', 4, 200),
+(1005, '2023-07-05', 5, 600);
+
+-- ITEM table
+INSERT INTO ITEM (item_num, unit_price) VALUES 
+(10, 50),
+(20, 30),
+(30, 70),
+(40, 20),
+(50, 100);
+
+-- ORDER_ITEM table
+INSERT INTO ORDER_ITEM (order_num, item_num, qty) VALUES 
+(1001, 10, 2),
+(1002, 20, 5),
+(1003, 30, 1),
+(1004, 40, 10),
+(1005, 50, 3);
+
+-- WAREHOUSE table
+INSERT INTO WAREHOUSE (warehouse_num, city) VALUES 
+(1, 'New York'),
+(2, 'Los Angeles'),
+(3, 'Chicago'),
+(4, 'Houston'),
+(5, 'Phoenix');
+
+-- SHIPMENT table
+INSERT INTO SHIPMENT (order_num, warehouse_num, ship_date) VALUES 
+(1001, 1, '2023-07-06'),
+(1002, 2, '2023-07-07'),
+(1003, 3, '2023-07-08'),
+(1004, 4, '2023-07-09'),
+(1005, 5, '2023-07-10');
+```
+
+#### c) Produce a listing: CUSTNAME, #oforders, AVG_ORDER_AMT
+
+```sql
+SELECT c.cname AS CUSTNAME, 
+       COUNT(o.order_num) AS #oforders, 
+       AVG(o.ord_amt) AS AVG_ORDER_AMT
+FROM CUSTOMER c
+JOIN ORDER o ON c.cust_num = o.cust_num
+GROUP BY c.cust_num, c.cname;
+```
+
+#### d) List the order# for orders that were shipped from all warehouses that the company has in a specific city
+
+```sql
+SELECT s.order_num
+FROM SHIPMENT s
+JOIN WAREHOUSE w ON s.warehouse_num = w.warehouse_num
+WHERE w.city = 'New York';
+```
+
+#### e) Delete item# 10 from the ITEM table and make that field null in the ORDER_ITEM table
+
+```sql
+UPDATE ORDER_ITEM
+SET item_num = NULL
+WHERE item_num = 10;
+
+DELETE FROM ITEM
+WHERE item_num = 10;
+```
