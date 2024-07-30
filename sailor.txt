@@ -1,6 +1,65 @@
-### SQL Queries for the Sailors, Boats, and Reserves Relations
+### SQL Queries for Sailors, Boats, and Reserves
 
-#### a) Find all information of sailors who have reserved boat number 101.
+#### Create Tables and Insert Values
+
+```sql
+CREATE TABLE Sailors (
+    sid INT PRIMARY KEY,
+    sname VARCHAR(100),
+    rating INT,
+    age REAL
+);
+
+CREATE TABLE Boats (
+    bid INT PRIMARY KEY,
+    bname VARCHAR(100),
+    color VARCHAR(50)
+);
+
+CREATE TABLE Reserves (
+    sid INT,
+    bid INT,
+    day DATE,
+    PRIMARY KEY (sid, bid, day),
+    FOREIGN KEY (sid) REFERENCES Sailors(sid),
+    FOREIGN KEY (bid) REFERENCES Boats(bid)
+);
+
+-- Insert values into Sailors table
+INSERT INTO Sailors (sid, sname, rating, age) VALUES 
+(1, 'John', 5, 25.5),
+(2, 'Mary', 7, 30.2),
+(3, 'Tom', 3, 20.3),
+(4, 'Anna', 8, 22.8),
+(5, 'James', 6, 28.4);
+
+-- Insert values into Boats table
+INSERT INTO Boats (bid, bname, color) VALUES 
+(101, 'Boaty McBoatface', 'red'),
+(102, 'Sea Explorer', 'blue'),
+(103, 'Wave Rider', 'green'),
+(104, 'Sailor\'s Delight', 'yellow'),
+(105, 'Ocean Breeze', 'red');
+
+-- Insert values into Reserves table
+INSERT INTO Reserves (sid, bid, day) VALUES 
+(1, 101, '2024-07-15'),
+(2, 103, '2024-07-16'),
+(3, 104, '2024-07-17'),
+(4, 101, '2024-07-18'),
+(5, 105, '2024-07-19'),
+(1, 103, '2024-07-20'),
+(2, 101, '2024-07-21'),
+(3, 102, '2024-07-22'),
+(4, 103, '2024-07-23'),
+(5, 104, '2024-07-24'),
+(1, 105, '2024-07-25'),
+(3, 103, '2024-07-25'),
+(4, 105, '2024-07-26'),
+(5, 103, '2024-07-27');
+```
+
+#### a) Find all information of sailors who have reserved boat number 101
 
 ```sql
 SELECT s.*
@@ -9,7 +68,7 @@ JOIN Reserves r ON s.sid = r.sid
 WHERE r.bid = 101;
 ```
 
-#### b) Find the names of sailors who have reserved at least one boat.
+#### b) Find the names of sailors who have reserved at least one boat
 
 ```sql
 SELECT DISTINCT s.sname
@@ -17,16 +76,16 @@ FROM Sailors s
 JOIN Reserves r ON s.sid = r.sid;
 ```
 
-#### c) Find the ids and names of sailors who have reserved two different boats on the same day.
+#### c) Find the ids and names of sailors who have reserved two different boats on the same day
 
 ```sql
-SELECT s.sid, s.sname
+SELECT DISTINCT s.sid, s.sname
 FROM Sailors s
 JOIN Reserves r1 ON s.sid = r1.sid
 JOIN Reserves r2 ON s.sid = r2.sid AND r1.day = r2.day AND r1.bid <> r2.bid;
 ```
 
-#### d) Find the ids of sailors who have reserved a red boat or a green boat.
+#### d) Find the ids of sailors who have reserved a red boat or a green boat
 
 ```sql
 SELECT DISTINCT r.sid
@@ -35,7 +94,7 @@ JOIN Boats b ON r.bid = b.bid
 WHERE b.color = 'red' OR b.color = 'green';
 ```
 
-#### e) Find the names of sailors who have reserved boat 103.
+#### e) Find the names of sailors who have reserved boat 103
 
 ```sql
 SELECT DISTINCT s.sname
@@ -44,7 +103,7 @@ JOIN Reserves r ON s.sid = r.sid
 WHERE r.bid = 103;
 ```
 
-#### f) Find the name and the age of the youngest sailor.
+#### f) Find the name and the age of the youngest sailor
 
 ```sql
 SELECT sname, age
@@ -53,12 +112,12 @@ ORDER BY age ASC
 LIMIT 1;
 ```
 
-#### g) Find the names of sailors who have reserved all boats.
+#### g) Find the names of sailors who have reserved all boats
 
 ```sql
 SELECT s.sname
 FROM Sailors s
 JOIN Reserves r ON s.sid = r.sid
-GROUP BY s.sid, s.sname
+GROUP BY s.sname
 HAVING COUNT(DISTINCT r.bid) = (SELECT COUNT(*) FROM Boats);
 ```
