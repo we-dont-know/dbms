@@ -1,0 +1,64 @@
+### SQL Queries for the Sailors, Boats, and Reserves Relations
+
+#### a) Find all information of sailors who have reserved boat number 101.
+
+```sql
+SELECT s.*
+FROM Sailors s
+JOIN Reserves r ON s.sid = r.sid
+WHERE r.bid = 101;
+```
+
+#### b) Find the names of sailors who have reserved at least one boat.
+
+```sql
+SELECT DISTINCT s.sname
+FROM Sailors s
+JOIN Reserves r ON s.sid = r.sid;
+```
+
+#### c) Find the ids and names of sailors who have reserved two different boats on the same day.
+
+```sql
+SELECT s.sid, s.sname
+FROM Sailors s
+JOIN Reserves r1 ON s.sid = r1.sid
+JOIN Reserves r2 ON s.sid = r2.sid AND r1.day = r2.day AND r1.bid <> r2.bid;
+```
+
+#### d) Find the ids of sailors who have reserved a red boat or a green boat.
+
+```sql
+SELECT DISTINCT r.sid
+FROM Reserves r
+JOIN Boats b ON r.bid = b.bid
+WHERE b.color = 'red' OR b.color = 'green';
+```
+
+#### e) Find the names of sailors who have reserved boat 103.
+
+```sql
+SELECT DISTINCT s.sname
+FROM Sailors s
+JOIN Reserves r ON s.sid = r.sid
+WHERE r.bid = 103;
+```
+
+#### f) Find the name and the age of the youngest sailor.
+
+```sql
+SELECT sname, age
+FROM Sailors
+ORDER BY age ASC
+LIMIT 1;
+```
+
+#### g) Find the names of sailors who have reserved all boats.
+
+```sql
+SELECT s.sname
+FROM Sailors s
+JOIN Reserves r ON s.sid = r.sid
+GROUP BY s.sid, s.sname
+HAVING COUNT(DISTINCT r.bid) = (SELECT COUNT(*) FROM Boats);
+```
